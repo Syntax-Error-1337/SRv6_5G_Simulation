@@ -28,7 +28,7 @@ class NetworkSimulator:
 
         # Save topology
         with open('data/topology.json', 'w') as f:
-            json.dump(nx.node_link_data(self.G, edges="edges"), f)
+            json.dump(nx.node_link_data(self.G), f)
 
     def define_segment_list(self, src: int, dst: int, path_id: str) -> List[int]:
         """Define an SRv6 segment list from source to destination."""

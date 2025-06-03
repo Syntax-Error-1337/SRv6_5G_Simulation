@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRv6 Path Optimization Architecture</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            padding: 40px;
+            background: #f8fafc;
+        }
+
+        .phase {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-left: 5px solid;
+        }
+
+        .phase1 {
+            border-left-color: #3b82f6;
+        }
+
+        .phase2 {
+            border-left-color: #10b981;
+        }
+
+        .phase-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .phase2 .phase-badge {
+            background: #10b981;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .component {
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+
+        .component-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .component-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .component-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-tag {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .data-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 15px solid #3b82f6;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .flow-label {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .network-slice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .ml-models {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .ml-models h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .model-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .model-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sdn-network {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .sdn-network h3 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .network-elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .network-element {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .network-element:hover {
+            transform: scale(1.05);
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .simulator-icon { background: #8b5cf6; }
+        .ml-icon { background: #f59e0b; }
+        .sdn-icon { background: #10b981; }
+        .network-icon { background: #06b6d4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SRv6 Path Optimization using Machine Learning and SDN Control</h1>
+        </div>
+        
+        <div class="main-content">
+            <!-- Phase 1: Offline Training -->
+            <div class="phase phase1">
+                <div class="phase-title">
+                    <span class="phase-badge">Phase 1</span>
+                    Offline Simulation & Model Training
+                </div>
+                
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon simulator-icon"></span>
+                            Network Simulator
+                        </div>
+                        <div class="component-desc">
+                            Simulates SRv6 network topology and generates traffic patterns for training data collection
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">network_sim.py</span>
+                            <span class="file-tag">topology.json</span>
+                            <span class="file-tag">networkx</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon simulator-icon"></span>
+                            Traffic Generator
+                        </div>
+                        <div class="component-desc">
+                            Generates realistic traffic patterns based on network slicing requirements
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">traffic_gen.py</span>
+                            <span class="file-tag">traffic_data.csv</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon ml-icon"></span>
+                            Metrics Collector
+                        </div>
+                        <div class="component-desc">
+                            Collects network performance metrics and creates ML training dataset
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">metrics_collector.py</span>
+                            <span class="file-tag">ml_dataset.csv</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon ml-icon"></span>
+                            ML Path Optimizer
+                        </div>
+                        <div class="component-desc">
+                            Trains machine learning models for intelligent path prediction and optimization
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">train_model.py</span>
+                            <span class="file-tag">ml_training.ipynb</span>
+                            <span class="file-tag">data_analysis.ipynb</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ml-models">
+                    <h3>🧠 Trained ML Models</h3>
+                    <div class="model-list">
+                        <div class="model-item">Random Forest<br><code>rf_model.pkl</code></div>
+                        <div class="model-item">LSTM Model<br><code>lstm_model.keras</code></div>
+                        <div class="model-item">GRU Model<br><code>gru_model.keras</code></div>
+                    </div>
+                </div>
+
+                <div class="data-flow">
+                    <span class="flow-label">Training Data Flow</span>
+                    <div class="arrow"></div>
+                    <span class="flow-label">Model Generation</span>
+                </div>
+            </div>
+
+            <!-- Phase 2: Online SDN Control -->
+            <div class="phase phase2">
+                <div class="phase-title">
+                    <span class="phase-badge">Phase 2</span>
+                    Online SDN Control & Path Prediction
+                </div>
+                
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon sdn-icon"></span>
+                            SDN Controller
+                        </div>
+                        <div class="component-desc">
+                            ML-enhanced SDN controller implementing intelligent path optimization
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">my_ml_controller.py</span>
+                            <span class="file-tag">ryu_application</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon ml-icon"></span>
+                            Path Predictor
+                        </div>
+                        <div class="component-desc">
+                            Real-time path prediction using trained ML models for dynamic routing decisions
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">path_predictor.py</span>
+                            <span class="file-tag">loaded_models</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="icon network-icon"></span>
+                            Traffic Injector
+                        </div>
+                        <div class="component-desc">
+                            TREX-based traffic generation for testing and validation of path optimization
+                        </div>
+                        <div class="component-files">
+                            <span class="file-tag">trex_client</span>
+                            <span class="file-tag">traffic_profiles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="network-slice">
+                    <h3>🔗 5G Network Slicing Support</h3>
+                    <p>Dynamic resource allocation across eMBB, mMTC, and URLLC slices using intelligent SRv6 path selection</p>
+                </div>
+
+                <div class="sdn-network">
+                    <h3>🌐 SDN-Enabled SRv6 Network Infrastructure</h3>
+                    <div class="network-elements">
+                        <div class="network-element">
+                            <strong>OpenFlow Switches</strong><br>
+                            <small>SDN-controlled forwarding</small>
+                        </div>
+                        <div class="network-element">
+                            <strong>SRv6 Nodes</strong><br>
+                            <small>Segment routing endpoints</small>
+                        </div>
+                        <div class="network-element">
+                            <strong>Edge Routers</strong><br>
+                            <small>Traffic ingress/egress</small>
+                        </div>
+                        <div class="network-element">
+                            <strong>Core Network</strong><br>
+                            <small>High-speed backbone</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-flow">
+                    <span class="flow-label">Real-time Traffic</span>
+                    <div class="arrow"></div>
+                    <span class="flow-label">ML Prediction</span>
+                    <div class="arrow"></div>
+                    <span class="flow-label">SRv6 Path Selection</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const components = document.querySelectorAll('.component');
+            
+            // Stagger animation for components
+            components.forEach((component, index) => {
+                component.style.opacity = '0';
+                component.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    component.style.transition = 'all 0.6s ease';
+                    component.style.opacity = '1';
+                    component.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Add click interactions
+            components.forEach(component => {
+                component.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
